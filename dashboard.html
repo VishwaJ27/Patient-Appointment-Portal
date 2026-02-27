@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Pennilson Lifeline Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin/admin.css') }}">
+</head>
+<body>
+
+<!-- SIDEBAR  -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="mark">PL</div>
+    <h2>Pennilson Lifeline</h2>
+    <p>Admin Panel</p>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a class="nav-item active" href="/admin">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item" href="/admin/patients">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      Patients
+    </a>
+    <a class="nav-item" href="/admin/appointments">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Appointments
+    </a>
+    <div class="nav-label">Actions</div>
+    <a class="nav-item" href="/">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
+      New Appointment
+    </a>
+  </nav>
+  <div class="sidebar-footer">&copy; 2024 Pennilson Lifeline</div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <div class="topbar">
+    <h1>Dashboard</h1>
+    <div class="topbar-right">
+      <span class="topbar-badge">Admin</span>
+      <a href="/" class="btn-primary">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        New Appointment
+      </a>
+    </div>
+  </div>
+
+  <div class="page">
+
+    <!-- STAT CARDS -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-icon si-teal">
+          <svg width="18" height="18" fill="none" stroke="#00a896" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
+        <div class="stat-label">Total Patients</div>
+        <div class="stat-value">{{ stats.total_patients }}</div>
+        <div class="stat-sub">Registered in system</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon si-gold">
+          <svg width="18" height="18" fill="none" stroke="#c9a84c" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        </div>
+        <div class="stat-label">Total Appointments</div>
+        <div class="stat-value">{{ stats.total_appointments }}</div>
+        <div class="stat-sub">All time bookings</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon si-red">
+          <svg width="18" height="18" fill="none" stroke="#e05c5c" stroke-width="1.8" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="stat-label">Emergencies</div>
+        <div class="stat-value">{{ stats.emergencies }}</div>
+        <div class="stat-sub">Flagged as urgent</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon si-blue">
+          <svg width="18" height="18" fill="none" stroke="#3498db" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <div class="stat-label">Today</div>
+        <div class="stat-value">{{ stats.today }}</div>
+        <div class="stat-sub">Appointments today</div>
+      </div>
+    </div>
+
+    <!-- RECENT APPOINTMENTS PREVIEW -->
+    <div class="section-heading">
+      <h2>Recent Appointments</h2>
+      <a href="/admin/appointments" class="link-all">View all &rarr;</a>
+    </div>
+
+    <div class="table-wrap">
+      {% if recent %}
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Department</th>
+              <th>Date</th>
+              <th>Severity</th>
+              <th>Emergency</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in recent %}
+            <tr>
+              <td>
+                <div class="patient-name">{{ a.full_name }}</div>
+                <div class="patient-ref">{{ a.appointment_id }}</div>
+              </td>
+              <td><span class="dept-tag">{{ a.department }}</span></td>
+              <td>{{ a.preferred_date }}</td>
+              <td>
+                {% set sev = a.severity|lower %}
+                {% if sev == 'mild' %}<span class="badge badge-mild">Mild</span>
+                {% elif sev == 'moderate' %}<span class="badge badge-moderate">Moderate</span>
+                {% else %}<span class="badge badge-severe">Severe</span>{% endif %}
+              </td>
+              <td>
+                {% if a.emergency == 'Yes' %}<span class="badge badge-emerg">&#128680; Emergency</span>
+                {% else %}<span class="badge badge-regular">Regular</span>{% endif %}
+              </td>
+              <td><a href="/admin/appointments" class="btn-sm">View</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <svg width="56" height="56" fill="none" stroke="#8a9bb0" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <p>No appointments yet. They will appear here once patients submit the form.</p>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

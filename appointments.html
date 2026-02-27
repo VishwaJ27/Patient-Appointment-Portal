@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Appointments — Pennilson Lifeline Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin/admin.css') }}">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="mark">PL</div>
+    <h2>Pennilson Lifeline</h2>
+    <p>Admin Panel</p>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a class="nav-item" href="/admin">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item" href="/admin/patients">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      Patients
+    </a>
+    <a class="nav-item active" href="/admin/appointments">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Appointments
+    </a>
+    <div class="nav-label">Actions</div>
+    <a class="nav-item" href="/">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
+      New Appointment
+    </a>
+  </nav>
+  <div class="sidebar-footer">&copy; 2024 Pennilson Lifeline</div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <div class="topbar">
+    <h1>Appointments</h1>
+    <div class="topbar-right">
+      <span class="topbar-badge">{{ appointments|length }} total</span>
+      <a href="/" class="btn-primary">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        New Appointment
+      </a>
+    </div>
+  </div>
+
+  <div class="page">
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg width="15" height="15" fill="none" stroke="#8a9bb0" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input class="search-input" id="searchInput" type="text" placeholder="Search by name, email, department, doctor...">
+      </div>
+      <select class="filter-select" id="filterDept">
+        <option value="">All Departments</option>
+        <option>Cardiology</option><option>Dermatology</option><option>General Medicine</option>
+        <option>Neurology</option><option>Orthopedics</option><option>Pediatrics</option>
+        <option>Gynecology</option><option>ENT</option><option>Ophthalmology</option><option>Psychiatry</option>
+      </select>
+      <select class="filter-select" id="filterSeverity">
+        <option value="">All Severities</option>
+        <option>Mild</option><option>Moderate</option><option>Severe</option>
+      </select>
+      <select class="filter-select" id="filterEmergency">
+        <option value="">All Types</option>
+        <option value="Yes">Emergency</option>
+        <option value="No">Regular</option>
+      </select>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrap">
+      <div class="table-header">
+        <div class="table-title">All Appointments</div>
+        <div class="table-count" id="tableCount">{{ appointments|length }} records</div>
+      </div>
+
+      {% if appointments %}
+      <div style="overflow-x:auto;">
+        <table id="appointmentTable">
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Contact</th>
+              <th>Department</th>
+              <th>Doctor</th>
+              <th>Date &amp; Slot</th>
+              <th>Severity</th>
+              <th>Emergency</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in appointments %}
+            <tr
+              data-name="{{ a.full_name|lower }}"
+              data-email="{{ a.email|lower }}"
+              data-dept="{{ a.department }}"
+              data-doctor="{{ (a.doctor or '')|lower }}"
+              data-severity="{{ a.severity }}"
+              data-emergency="{{ a.emergency }}"
+            >
+              <td>
+                <div class="patient-name">{{ a.full_name }}</div>
+                <div class="patient-ref">{{ a.appointment_id }}</div>
+              </td>
+              <td>
+                <div>{{ a.email }}</div>
+                <div style="font-size:0.76rem;color:var(--muted);margin-top:2px;">{{ a.phone }}</div>
+              </td>
+              <td><span class="dept-tag">{{ a.department }}</span></td>
+              <td>{{ a.doctor or '—' }}</td>
+              <td>
+                <div>{{ a.preferred_date }}</div>
+                <div style="margin-top:3px;">
+                  {% set slot = a.time_slot|lower %}
+                  {% if slot == 'morning' %}<span class="badge badge-morning">Morning</span>
+                  {% elif slot == 'afternoon' %}<span class="badge badge-afternoon">Afternoon</span>
+                  {% else %}<span class="badge badge-evening">Evening</span>{% endif %}
+                </div>
+              </td>
+              <td>
+                {% set sev = a.severity|lower %}
+                {% if sev == 'mild' %}<span class="badge badge-mild">Mild</span>
+                {% elif sev == 'moderate' %}<span class="badge badge-moderate">Moderate</span>
+                {% else %}<span class="badge badge-severe">Severe</span>{% endif %}
+              </td>
+              <td>
+                {% if a.emergency == 'Yes' %}<span class="badge badge-emerg">&#128680; Emergency</span>
+                {% else %}<span class="badge badge-regular">Regular</span>{% endif %}
+              </td>
+              <td>
+                <button class="btn-sm btn-view" data-record='{{ a | tojson | e }}'>View</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <svg width="56" height="56" fill="none" stroke="#8a9bb0" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <p>No appointments yet. They will appear here once patients submit the form.</p>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="mName">—</div>
+        <div class="modal-ref" id="mRef">—</div>
+      </div>
+      <button class="modal-close" id="modalCloseBtn">&#10005;</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="modal-section">
+        <div class="modal-section-title">Patient Information</div>
+        <div class="modal-grid">
+          <div class="modal-field"><label>Date of Birth</label><span id="mDob">—</span></div>
+          <div class="modal-field"><label>Gender</label><span id="mGender">—</span></div>
+          <div class="modal-field"><label>Blood Group</label><span id="mBlood">—</span></div>
+          <div class="modal-field"><label>Phone</label><span id="mPhone">—</span></div>
+          <div class="modal-field full"><label>Email</label><span id="mEmail">—</span></div>
+          <div class="modal-field full"><label>Address</label><span id="mAddress">—</span></div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">Symptoms &amp; Medical History</div>
+        <div class="modal-grid">
+          <div class="modal-field full"><label>Symptoms</label><span id="mSymptoms">—</span></div>
+          <div class="modal-field"><label>Duration</label><span id="mDuration">—</span></div>
+          <div class="modal-field"><label>Severity</label><span id="mSeverity">—</span></div>
+          <div class="modal-field full"><label>Existing Conditions</label><span id="mConditions">—</span></div>
+          <div class="modal-field"><label>Medications</label><span id="mMedications">—</span></div>
+          <div class="modal-field"><label>Allergies</label><span id="mAllergies">—</span></div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">Appointment Details</div>
+        <div class="modal-grid">
+          <div class="modal-field"><label>Department</label><span id="mDept">—</span></div>
+          <div class="modal-field"><label>Doctor</label><span id="mDoctor">—</span></div>
+          <div class="modal-field"><label>Preferred Date</label><span id="mDate">—</span></div>
+          <div class="modal-field"><label>Time Slot</label><span id="mSlot">—</span></div>
+          <div class="modal-field"><label>Emergency</label><span id="mEmergency">—</span></div>
+          <div class="modal-field"><label>Registered On</label><span id="mCreated">—</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='admin/admin.js') }}"></script>
+<script>
+  bindFilter('appointmentTable', 'tableCount', [
+    { inputId: 'searchInput',    type: 'search', fields: ['name','email','dept','doctor'] },
+    { inputId: 'filterDept',     type: 'exact',  field: 'dept' },
+    { inputId: 'filterSeverity', type: 'exact',  field: 'severity' },
+    { inputId: 'filterEmergency',type: 'exact',  field: 'emergency' },
+  ]);
+</script>
+</body>
+</html>
