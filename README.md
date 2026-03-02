@@ -202,9 +202,3 @@ The system uses two tables.
 - Export records to PDF or Excel
 - Email confirmation sent to patients after booking
 - Appointment status tracking (Pending, Confirmed, Completed)
-
----
-
-## License
-
-This project is open source and available under the [MIT License](LICENSE).
